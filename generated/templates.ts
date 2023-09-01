@@ -21,3 +21,27 @@ export class IpfsContent extends DataSourceTemplate {
     DataSourceTemplate.createWithContext("IpfsContent", [cid], context);
   }
 }
+
+export class ProfileMetadata extends DataSourceTemplate {
+  static create(cid: string): void {
+    DataSourceTemplate.create("ProfileMetadata", [cid]);
+  }
+
+  static createWithContext(cid: string, context: DataSourceContext): void {
+    DataSourceTemplate.createWithContext("ProfileMetadata", [cid], context);
+  }
+}
+
+export class ProfileMetadataNested extends DataSourceTemplate {
+  static create(cid: string): void {
+    DataSourceTemplate.create("ProfileMetadataNested", [cid]);
+  }
+
+  static createWithContext(cid: string, context: DataSourceContext): void {
+    DataSourceTemplate.createWithContext(
+      "ProfileMetadataNested",
+      [cid],
+      context
+    );
+  }
+}
