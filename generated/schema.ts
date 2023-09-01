@@ -320,30 +320,38 @@ export class Profile extends Entity {
     this.set("timestamp", Value.fromBigInt(value));
   }
 
-  get ProfileMetadata(): Array<string> {
+  get ProfileMetadata(): string | null {
     let value = this.get("ProfileMetadata");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
-      return value.toStringArray();
+      return value.toString();
     }
   }
 
-  set ProfileMetadata(value: Array<string>) {
-    this.set("ProfileMetadata", Value.fromStringArray(value));
+  set ProfileMetadata(value: string | null) {
+    if (!value) {
+      this.unset("ProfileMetadata");
+    } else {
+      this.set("ProfileMetadata", Value.fromString(<string>value));
+    }
   }
 
-  get derivedFrom(): Array<Bytes> {
+  get derivedFrom(): Bytes | null {
     let value = this.get("derivedFrom");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
-      return value.toBytesArray();
+      return value.toBytes();
     }
   }
 
-  set derivedFrom(value: Array<Bytes>) {
-    this.set("derivedFrom", Value.fromBytesArray(value));
+  set derivedFrom(value: Bytes | null) {
+    if (!value) {
+      this.unset("derivedFrom");
+    } else {
+      this.set("derivedFrom", Value.fromBytes(<Bytes>value));
+    }
   }
 }
 
@@ -439,9 +447,56 @@ export class ProfileMetadata extends Entity {
   set image(value: string) {
     this.set("image", Value.fromString(value));
   }
+}
 
-  get nested(): string | null {
-    let value = this.get("nested");
+export class ProfileMetadataNested extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id != null,
+      "Cannot save ProfileMetadataNested entity without an ID"
+    );
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type ProfileMetadataNested must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("ProfileMetadataNested", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): ProfileMetadataNested | null {
+    return changetype<ProfileMetadataNested | null>(
+      store.get_in_block("ProfileMetadataNested", id)
+    );
+  }
+
+  static load(id: string): ProfileMetadataNested | null {
+    return changetype<ProfileMetadataNested | null>(
+      store.get("ProfileMetadataNested", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get nestedCID(): string | null {
+    let value = this.get("nestedCID");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -449,11 +504,11 @@ export class ProfileMetadata extends Entity {
     }
   }
 
-  set nested(value: string | null) {
+  set nestedCID(value: string | null) {
     if (!value) {
-      this.unset("nested");
+      this.unset("nestedCID");
     } else {
-      this.set("nested", Value.fromString(<string>value));
+      this.set("nestedCID", Value.fromString(<string>value));
     }
   }
 }

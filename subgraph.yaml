@@ -64,16 +64,16 @@ templates:
                 file: ./abis/Contract.json
           handler: handleProfileMetadata
           file: ./src/contract.ts
-    - kind: file/ipfs
-      name: ProfileMetadataNested
-      mapping:
-          kind: ethereum/events
-          apiVersion: 0.0.7
-          language: wasm/assemblyscript
-          entities:
-              - ProfileMetadata
-          abis:
-              - name: Contract
-                file: ./abis/Contract.json
-          handler: handleProfileMetadata
-          file: ./src/contract.ts
+    # - kind: file/ipfs
+    #   name: ProfileMetadataNested
+    #   mapping:
+    #       kind: ethereum/events
+    #       apiVersion: 0.0.7
+    #       language: wasm/assemblyscript
+    #       entities:
+    #           - ProfileMetadataNested
+    #       abis:
+    #           - name: Contract
+    #             file: ./abis/Contract.json
+    #       handler: handleProfileMetadata
+    #       file: ./src/contract.ts

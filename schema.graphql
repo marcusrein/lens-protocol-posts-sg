@@ -1,36 +1,45 @@
+# Represents a post that has been created
 type PostCreated @entity(immutable: true) {
-	id: Bytes!
-	ownerId: BigInt!
-	contentURI: String!
-	timestamp: BigInt!
+	id: Bytes! # Unique identifier for the post
+	ownerId: BigInt! # ID of the owner of the post
+	contentURI: String! # URI where the content of the post can be found
+	timestamp: BigInt! # Timestamp when the post was created
 }
 
+# Represents the content of a post
 type PostContent @entity(immutable: true) {
-	id: Bytes!
-	hash: String!
-	content: String!
+	id: Bytes! # Unique identifier for the post content
+	hash: String! # Hash of the content
+	content: String! # Actual content of the post
 }
 
+# Represents a user profile
 type Profile @entity(immutable: true) {
-	id: ID!
-	profileId: BigInt!
-	creator: Bytes!
-	to: Bytes!
-	handle: String!
-	imageURI: String!
-	followModule: Bytes!
-	followModuleReturnData: Bytes!
-	followNFTURI: String!
-	timestamp: BigInt!
-	ProfileMetadata: ProfileMetadata
-	derivedFrom: PostCreated
+	id: ID! # Unique identifier for the profile
+	profileId: BigInt! # ID of the profile
+	creator: Bytes! # Address of the creator of the profile
+	to: Bytes! # Address to which the profile belongs
+	handle: String! # Handle or username of the profile
+	imageURI: String! # URI where the profile image can be found
+	followModule: Bytes! # Some module related to following (needs more context)
+	followModuleReturnData: Bytes! # Return data from the follow module
+	followNFTURI: String! # URI for the NFT associated with the profile
+	timestamp: BigInt! # Timestamp when the profile was created
+	profileMetadata: ProfileMetadata @derivedFrom(field: "profile")
 }
 
+# Represents metadata associated with a profile
 type ProfileMetadata @entity(immutable: true) {
-	id: ID!
-	name: String!
-	description: String!
-	animation_url: String!
-	image: String!
-	nested: String
+	id: ID! # Unique identifier for the metadata
+	name: String! # Name in the metadata
+	description: String! # Description in the metadata
+	animation_url: String! # URL for any associated animation
+	image: String! # Image in the metadata
+	profile: Profile # Back-reference to the associated profile
+}
+
+# Represents nested metadata (needs more context)
+type ProfileMetadataNested @entity(immutable: true) {
+	id: ID! # Unique identifier for the nested metadata
+	nestedCID: String # CID for the nested content
 }

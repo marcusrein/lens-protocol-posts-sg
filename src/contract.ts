@@ -5,6 +5,7 @@ import {
 	DataSourceTemplate,
 	ipfs,
 	json,
+	log,
 } from "@graphprotocol/graph-ts";
 import {
 	PostCreated as PostCreatedEvent,
@@ -16,8 +17,10 @@ import {
 	PostCreated,
 	Profile,
 } from "../generated/schema";
-import { ProfileMetadata as ProfileMetadataTemplate } from "../generated/templates";
-import { ProfileMetadataNested as ProfileMetadataNestedTemplate } from "../generated/templates";
+import {
+	ProfileMetadata as ProfileMetadataTemplate,
+	ProfileMetadataNested as ProfileMetadataNestedTemplate,
+} from "../generated/templates";
 
 const POST_ID_KEY = "postID";
 let profileUri: string;
@@ -69,54 +72,66 @@ export function handlePostContent(content: Bytes): void {
 }
 
 export function handleProfileCreated(event: ProfileCreatedEvent): void {
-	let entity = new Profile(event.params.profileId.toString());
+	let entity = Profile.load(event.params.profileId.toString());
 
-	entity.profileId = event.params.profileId;
-	entity.creator = event.params.creator;
-	entity.to = event.params.to;
-	entity.handle = event.params.handle;
-	entity.imageURI = event.params.imageURI;
-	entity.followModule = event.params.followModule;
-	entity.followModuleReturnData = event.params.followModuleReturnData;
-	entity.followNFTURI = event.params.followNFTURI;
-	entity.timestamp = event.params.timestamp;
+	if (!entity) {
+		entity = new Profile(event.params.profileId.toString());
+
+		entity.profileId = event.params.profileId;
+		entity.creator = event.params.creator;
+		entity.to = event.params.to;
+		entity.handle = event.params.handle;
+		entity.imageURI = event.params.imageURI;
+		entity.followModule = event.params.followModule;
+		entity.followModuleReturnData = event.params.followModuleReturnData;
+		entity.followNFTURI = event.params.followNFTURI;
+		entity.timestamp = event.params.timestamp;
+	}
 
 	profileUri = event.params.followNFTURI;
 
-	let context = new DataSourceContext();
-	context.setString("type", "ProfileMetadata");
-	ProfileMetadataTemplate.createWithContext(profileUri, context);
+	log.info("0 XXX: profileUri: {}", [profileUri]);
+	let stringWithoutPrefix = profileUri.replace("ipfs://", "");
+	log.info("00 XXX: stringWithoutPrefix: {}", [stringWithoutPrefix]);
+
+	ProfileMetadataTemplate.create(stringWithoutPrefix);
 
 	entity.save();
 }
 
+log.info("1 XXX: before handleProfileMetadata", []);
+
 export function handleProfileMetadata(content: Bytes): void {
-	let ctx = dataSource.context();
-	let type = ctx.getString("type");
+	let profileMetadata = new ProfileMetadata(dataSource.stringParam());
 
-	if (type == "ProfileMetadata") {
-		let profileMetadataId = dataSource.stringParam() + "-ProfileMetadata";
-		let profileMetadata = new ProfileMetadata(profileMetadataId);
+	log.info("2 XXX: profileMetadataId: {}", [profileMetadata.id]);
+	// log.info("3 XXX: profileMetadata name: {}", [profileMetadata.name]);
 
-		const value = json.fromBytes(content).toObject();
+	const value = json.fromBytes(content).toObject();
 
-		if (value) {
-			const name = value.get("name");
-			const description = value.get("description");
-			const animation_url = value.get("animation_url");
-			const image = value.get("image");
+	log.info("4 XXX:  {}", ["potato"]);
 
-			if (name && description && animation_url && image) {
-				profileMetadata.name = name.toString();
-				profileMetadata.description = description.toString();
-				profileMetadata.animation_url = animation_url.toString();
-				profileMetadata.image = image.toString();
-				profileMetadata.save();
-			}
-			if (image) {
-				let imageIpfsHash = image.toString();
-				ProfileMetadataNestedTemplate.create(imageIpfsHash);
-			}
+	if (value) {
+		log.info("5 XXX:  {}", ["we have value"]);
+		const name = value.get("name");
+		const description = value.get("description");
+		const animation_url = value.get("animation_url");
+		const image = value.get("image");
+
+		if (name && description && animation_url && image) {
+			log.info("6 XXX:  {}", ["we have all the values"]);
+			profileMetadata.name = name.toString();
+			profileMetadata.description = description.toString();
+			profileMetadata.animation_url = animation_url.toString();
+			profileMetadata.image = image.toString();
+
+			log.info("7 XXX: THE THINGS  {}{}{}{}", [
+				profileMetadata.name,
+				profileMetadata.description,
+				profileMetadata.animation_url,
+				profileMetadata.image,
+			]);
 		}
 	}
+	profileMetadata.save();
 }
